@@ -1,45 +1,38 @@
 from fastapi import FastAPI, UploadFile
-from faster_whisper import WhisperModel
 import tempfile
 import os
+from transcription import TranscriptionService
+from typing import Annotated
+from fastapi import File, HTTPException
 
 app = FastAPI()
+service = TranscriptionService()
 
-print("Loading Whisper model... Please wait.")
+@app.post("/api/transcribe")
+async def transcribe_audio(audio: Annotated[UploadFile, File()]):
+    if not service:
+        raise HTTPException(
+            status_code=503, detail="Service not ready, still initializing models"
+        )
 
-model = WhisperModel(
-    "tiny",
-    device="auto",
-    compute_type="int8"
-)
-
-print("Whisper model fully loaded!")
-
-
-@app.post("/transcribe")
-async def transcribe_audio(audio: UploadFile):
-
-    content = await audio.read()
-
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-
+    suffix = os.path.splitext(audio.filename)[1] or ".webm"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        content = await audio.read()
         tmp.write(content)
         tmp_path = tmp.name
 
     try:
+        raw_text = service.transcribe(tmp_path)
+        return {"success": True, "text": raw_text}
 
-        segments, _ = model.transcribe(tmp_path)
-
-        text = " ".join(
-            segment.text for segment in segments
-        )
-
-        return {
-            "text": text
-        }
+    except Exception as e:
+        print(f"❌ Transcription error: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Transcription failed: {str(e)}"
+        ) from e
 
     finally:
-
+        # Always clean up temp file
         if os.path.exists(tmp_path):
             os.unlink(tmp_path)
 
