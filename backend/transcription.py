@@ -37,6 +37,9 @@ class TranscriptionService:
 
         return text
 
+    def get_default_system_prompt(self):
+        return SYSTEM_PROMPT
+
     def clean_with_llm(self, text, system_prompt=None):
         if not text:
             return ""
