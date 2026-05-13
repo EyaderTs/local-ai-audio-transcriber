@@ -36,6 +36,21 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+@app.get("/api/status")
+async def get_status():
+    return {
+        "status" : "ready" if service else "initializing",
+        "whisper_model" : os.getenv('WHISPER_MODEL'),
+        "llm_base_url" : os.getenv('LLM_BASE_URL'),
+        "llm_model" : os.getenv('LLM_MODEL')
+    }
+
+
+@app.get("/api/system-prompt")
+async def get_system_prompt():
+    if not service:
+        raise HTTPException(status_code=503, detail="Service not ready")
+    return {"default_prompt": service.get_default_system_prompt()}
 
 @app.post("/api/transcribe")
 async def transcribe_audio(audio: Annotated[UploadFile, File()]):
