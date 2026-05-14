@@ -6,3 +6,7 @@ backend/__pycache__/
 
 #env files
 backend/.env
+
+#frontend/node_modules
+frontend/dist
+frontend/node_modules
