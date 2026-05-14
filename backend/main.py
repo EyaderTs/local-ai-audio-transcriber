@@ -7,6 +7,8 @@ from fastapi import File, HTTPException
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
+
 
 load_dotenv()  # Load environment variables from .env file
 service = None
@@ -34,7 +36,19 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(title="AI Transcript App",lifespan=lifespan)
+
+# CORS for localhost development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",  # React dev server (Vite)
+        "http://localhost:5173",  # React dev server (Vite alternative port)
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/api/status")
 async def get_status():
