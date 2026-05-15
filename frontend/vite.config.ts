@@ -8,7 +8,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://host.docker.internal:8000',
         changeOrigin: true,
         // Increase timeout for long audio file transcriptions
         // Large audio files can take several minutes to process
