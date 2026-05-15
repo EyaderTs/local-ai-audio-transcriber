@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: ai-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_BASE_URL=http://host.docker.internal:11434/v1
+      - LLM_API_KEY=ollama
+      - LLM_MODEL=llama3.2:3b
+      - WHISPER_MODEL=base
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: ai-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
