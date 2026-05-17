@@ -5,12 +5,12 @@ export function Footer() {
     <footer className={styles.footer}>
       <p className={styles.text}>Want to build AI apps like this?</p>
       <a
-        href="https://www.skool.com/ai-engineer/about"
+        href="https://github.com/EyaderTs/local-ai-audio-transcriber"
         target="_blank"
         rel="noopener noreferrer"
         className={styles.link}
       >
-        Join the AI-Native Engineer community →
+        Just clone this and learn step by step →
       </a>
     </footer>
   );
